@@ -15,13 +15,13 @@ gem "grpc" unless ENV["ANYCABLE_GRPC_IMPL"] == "grpc_kit"
 if File.file?(File.join(__dir__, "../../../anycable/anycable-core.gemspec"))
   gem "anycable-core", path: "../..", group: :preload
 else
-  gem "anycable-core", "1.4.0.rc1", require: false, group: :preload
+  gem "anycable-core", "1.4.3", require: false, group: :preload
 end
 
 if File.file?(File.join(__dir__, "../../../anycable-rails/anycable-rails.gemspec"))
   gem "anycable-rails", path: "../../../anycable-rails", require: false, group: :preload
 else
-  gem "anycable-rails", "1.4.0.rc1", require: false, group: :preload
+  gem "anycable-rails", "1.4.2", require: false, group: :preload
 end
 
 gem "debug", "1.7.0"
