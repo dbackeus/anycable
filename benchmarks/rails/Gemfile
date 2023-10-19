@@ -1,6 +1,8 @@
 source "https://rubygems.org"
 
 gem "rails", "~> 7.0", group: :preload
+gem "litestack", "~> 0.4", group: :preload
+gem "pg", "~> 1.5", group: :preload
 gem "puma", "~> 6.0"
 gem "rack", "< 3", group: :preload
 gem "redis", "~> 5.0", group: :preload

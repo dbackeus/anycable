@@ -39,7 +39,13 @@ OptionParser.new do |opts|
   opts.on('--falcon', 'Run Falcon/Async server') do |v|
     $benchmark_server = :falcon
   end
+
+  opts.on('--adapter=ADAPTER', 'Action Cable adapter (anycable, redis, postgresql)') do |v|
+    $action_cable_adapter = v.to_sym
+  end
 end.parse!
+
+$action_cable_adapter ||= $benchmark_server == :anycable ? :anycable : :redis
 
 require "rails"
 require "global_id"
@@ -69,10 +75,41 @@ class App < Rails::Application
   end
 end
 
-ActionCable.server.config.cable = {
-  "adapter" => $benchmark_server == :anycable ? "any_cable" : "redis",
-  "url" => ENV["REDIS_URL"]
-}
+ActionCable.server.config.cable =
+  case $action_cable_adapter
+  when :anycable
+    {
+      "adapter" => "any_cable",
+      "url" => ENV["REDIS_URL"],
+    }
+  when :redis
+    {
+      "adapter" => "redis",
+      "url" => ENV["REDIS_URL"],
+    }
+  when :postgresql
+    {
+      "adapter" => "postgresql",
+    }
+  end
+
+if $action_cable_adapter == :postgresql
+  require "active_record"
+
+  # Create postgresql database before connecting
+  ActiveRecord::Base.establish_connection(adapter: "postgresql", database: "postgres")
+  begin
+    ActiveRecord::Base.connection.create_database("anycable_benchmark", encoding: "unicode")
+  rescue ActiveRecord::DatabaseAlreadyExists
+  end
+
+  # Configure ActiveRecord to use postgresql
+  ActiveRecord::Base.establish_connection(
+    adapter: "postgresql",
+    database: "anycable_benchmark",
+  )
+end
+
 ActionCable.server.config.connection_class = -> { ApplicationCable::Connection }
 ActionCable.server.config.disable_request_forgery_protection = true
 ActionCable.server.config.logger = Rails.logger
