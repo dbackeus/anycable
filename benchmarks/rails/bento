@@ -91,6 +91,10 @@ ActionCable.server.config.cable =
     {
       "adapter" => "postgresql",
     }
+  when :litecable
+    {
+      "adapter" => "litecable",
+    }
   end
 
 if $action_cable_adapter == :postgresql
